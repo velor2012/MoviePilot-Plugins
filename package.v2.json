@@ -3,24 +3,24 @@
         "name": "添加种子下载-Plus",
         "description": "选择下载器，添加种子任务，可自定义标签类别。",
         "labels": "下载",
-        "version": "0.1",
+        "version": "1.0.0",
         "icon": "statistic.png",
         "author": "velor2012",
         "level": 2,
         "history": {
-            "v0.1": "功能能初步完成"
+            "v1.0.0": "功能能初步完成"
         }
     },
     "DownloaderTagAdder": {
         "name": "下载器添加标签",
         "description": "给qb、tr的下载器贴标签（下载时触发）",
         "labels": "下载",
-        "version": "0.1",
+        "version": "1.0.0",
         "icon": "statistic.png",
         "author": "velor2012",
         "level": 2,
         "history": {
-            "v0.1": "功能能初步完成"
+            "v1.0.0": "功能能初步完成"
         }
     },
 }
