@@ -17,7 +17,7 @@ class DownloadTorrentPlus(_PluginBase):
     # 插件描述
     plugin_desc = "选择下载器，添加种子任务，可自定义标签类别。"
     # 插件图标
-    plugin_icon = "download.png"
+    plugin_icon = "https://raw.githubusercontent.com/hotlcc/MoviePilot-Plugins-Third/main/icons/DownloaderHelper.png"
     # 插件版本
     plugin_version = "0.1"
     # 插件作者

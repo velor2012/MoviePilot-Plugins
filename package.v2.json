@@ -4,7 +4,7 @@
         "description": "选择下载器，添加种子任务，可自定义标签类别。",
         "labels": "下载",
         "version": "1.0.0",
-        "icon": "statistic.png",
+        "icon": "https://raw.githubusercontent.com/hotlcc/MoviePilot-Plugins-Third/main/icons/DownloaderHelper.png",
         "author": "velor2012",
         "level": 2,
         "history": {
@@ -16,7 +16,7 @@
         "description": "给qb、tr的下载器贴标签（下载时触发）",
         "labels": "下载",
         "version": "1.0.0",
-        "icon": "statistic.png",
+        "icon": "https://raw.githubusercontent.com/hotlcc/MoviePilot-Plugins-Third/main/icons/DownloaderHelper.png",
         "author": "velor2012",
         "level": 2,
         "history": {
