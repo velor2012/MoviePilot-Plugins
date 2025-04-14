@@ -13,9 +13,9 @@ from app.helper.directory import DirectoryHelper
 # fork from https://github.com/thsrite/MoviePilot-Plugins/tree/main/plugins.v2/downloadtorrent
 class DownloadTorrentPlus(_PluginBase):
     # 插件名称
-    plugin_name = "添加种子下载"
+    plugin_name = "添加种子下载-Plus"
     # 插件描述
-    plugin_desc = "选择下载器，添加种子任务。"
+    plugin_desc = "选择下载器，添加种子任务，可自定义标签类别。"
     # 插件图标
     plugin_icon = "download.png"
     # 插件版本
