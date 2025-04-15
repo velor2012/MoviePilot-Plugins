@@ -75,8 +75,8 @@ class DownloaderTagAdder(_PluginBase):
         # 执行
         logger.info('下载添加事件监听任务执行开始...')
         # enable_seeding=True是针对辅种添加种子并跳过校验的场景
-        _hash = event.event_data['hash']
-        downloader = event.event_data['downloader']
+        _hash = event.event_data.dict().get('hash')
+        downloader = event.event_data.dict().get("downloader")
         service = self.downloader_helper.get_service(downloader)
         downloader_obj = service.instance
         if not service or not downloader_obj:
