@@ -75,9 +75,8 @@ class DownloaderTagAdder(_PluginBase):
         # 执行
         logger.info('下载添加事件监听任务执行开始...')
         # enable_seeding=True是针对辅种添加种子并跳过校验的场景
-        context = event.event_data.get("context")
-        _hash = event.event_data.get('hash')
-        downloader = event.event_data.get("downloader")
+        _hash = event.event_data['hash']
+        downloader = event.event_data['downloader']
         service = self.downloader_helper.get_service(downloader)
         downloader_obj = service.instance
         if not service or not downloader_obj:
@@ -243,4 +242,3 @@ class DownloaderTagAdder(_PluginBase):
             logger.info('尝试停止插件服务...')
             logger.info('插件服务停止完成')
         except Exception as e:
-            logger.error(f"插件服务停止异常: {str(e)}", exc_info=True)
