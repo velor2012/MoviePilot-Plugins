@@ -61,7 +61,6 @@ class DownloaderTagAdder(_PluginBase):
                         "custom_tags": config.get(f"{dl.name}_custom_tags", "").split("\n")
                     }
     @eventmanager.register(EventType.DownloadAdded)
-    @eventmanager.register(ChainEventType.ResourceDownload)
     def listen_download_added_event(self, event: Event = None):
         """
         监听下载添加事件
@@ -97,10 +96,10 @@ class DownloaderTagAdder(_PluginBase):
         
         if service.type == "qbittorrent":
             downloader_obj.set_torrents_tag(ids=_hash, tags=tag)
-            if service.type == "transmission":
-                # 由于 tr 会覆盖原标签，此处设置追加
-                _tags = downloader_obj.get_torrent_tags(ids=_hash)
-                downloader_obj.set_torrent_tag(ids=_hash, tags=tag, org_tags=_tags)
+        else:
+            # 由于 tr 会覆盖原标签，此处设置追加
+            _tags = downloader_obj.get_torrent_tags(ids=_hash)
+            downloader_obj.set_torrent_tag(ids=_hash, tags=tag, org_tags=_tags)
 
         logger.info('下载添加事件监听任务执行结束')
 
