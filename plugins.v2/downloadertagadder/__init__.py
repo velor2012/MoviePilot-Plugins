@@ -242,3 +242,4 @@ class DownloaderTagAdder(_PluginBase):
             logger.info('尝试停止插件服务...')
             logger.info('插件服务停止完成')
         except Exception as e:
+            logger.error(f"插件服务停止异常: {str(e)}", exc_info=True)
