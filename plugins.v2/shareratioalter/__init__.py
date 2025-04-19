@@ -1,20 +1,11 @@
-import datetime
-import threading
+
 from typing import List, Tuple, Dict, Any, Optional
 
-import pytz
-from app import log
-from app.db import site_oper
+
 from app.db.site_oper import SiteOper
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
 from app.core.config import settings
-from app.helper.downloader import DownloaderHelper
 from app.log import logger
 from app.plugins import _PluginBase
-from app.schemas import ServiceInfo
-from app.utils.string import StringUtils
-from app.plugins.downloaderhelper.module import TaskContext
 from app.schemas.types import EventType
 from app.core.event import eventmanager, Event
 from app.db.models.siteuserdata import SiteUserData
@@ -95,8 +86,6 @@ class ShareRatioAlter(_PluginBase):
         self.post_message(mtype=NotificationType.SiteMessage,
                             title="站点分享率过低告警", text="\n".join(messages))
 
-        # 发送通知
-        pass
 
     def __get_data(self) -> Tuple[str, List[SiteUserData], List[SiteUserData]]:
         """
@@ -225,14 +214,14 @@ class ShareRatioAlter(_PluginBase):
             'value': site.id
         } for site in sites if site and site.is_active]
 
-    def __get_enable_site_ids(self) -> List[int]:
-        """
-        获取启用的站点IDs
-        """
-        sites = self.site_oper.list_order_by_pri()
-        if not sites:
-            return []
-        return [site.id for site in sites if site and site.is_active]
+    # def __get_enable_site_ids(self) -> List[int]:
+    #     """
+    #     获取启用的站点IDs
+    #     """
+    #     sites = self.site_oper.list_order_by_pri()
+    #     if not sites:
+    #         return []
+    #     return [site.id for site in sites if site and site.is_active]
 
 
     def get_state(self) -> bool:
