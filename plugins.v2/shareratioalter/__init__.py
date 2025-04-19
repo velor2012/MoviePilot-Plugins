@@ -26,7 +26,7 @@ class ShareRatioAlter(_PluginBase):
     # 插件描述
     plugin_desc = "监测站点分享率，低于自定义值时发送通知"
     # 插件图标
-    plugin_icon = "https://raw.githubusercontent.com/hotlcc/MoviePilot-Plugins-Third/main/icons/DownloaderHelper.png"
+    plugin_icon = "world.png"
     # 插件版本
     plugin_version = "0.0.1"
     # 插件作者
@@ -46,10 +46,9 @@ class ShareRatioAlter(_PluginBase):
     # 站点选项
     site_options = []
     sites_config = {}
-    # 退出事件
-    _event = threading.Event()
+    # # 退出事件
+    # _event = threading.Event()
     # 私有属性
-    _scheduler = None
     _enabled = False
 
     def init_plugin(self, config: dict = None):
