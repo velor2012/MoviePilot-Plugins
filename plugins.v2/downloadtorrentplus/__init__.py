@@ -13,13 +13,13 @@ from app.helper.directory import DirectoryHelper
 # fork from https://github.com/thsrite/MoviePilot-Plugins/tree/main/plugins.v2/downloadtorrent
 class DownloadTorrentPlus(_PluginBase):
     # 插件名称
-    plugin_name = "添加种子下载-Plus"
+    plugin_name = "添加种子下载"
     # 插件描述
-    plugin_desc = "选择下载器，添加种子任务，可自定义标签类别。"
+    plugin_desc = "选择下载器，添加种子任务。"
     # 插件图标
-    plugin_icon = "https://raw.githubusercontent.com/hotlcc/MoviePilot-Plugins-Third/main/icons/DownloaderHelper.png"
+    plugin_icon = "download.png"
     # 插件版本
-    plugin_version = "0.1"
+    plugin_version = "1.0.0"
     # 插件作者
     plugin_author = "velor2012"
     # 作者主页
