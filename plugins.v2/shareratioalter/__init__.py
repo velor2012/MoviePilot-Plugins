@@ -20,7 +20,7 @@ from app.core.event import eventmanager, Event
 from app.db.models.siteuserdata import SiteUserData
 from app.schemas import Notification, NotificationType, MessageChannel
 
-class ShareRationAlter(_PluginBase):
+class ShareRatioAlter(_PluginBase):
     # 插件名称
     plugin_name = "站点分享率监控"
     # 插件描述
@@ -34,14 +34,14 @@ class ShareRationAlter(_PluginBase):
     # 作者主页
     author_url = "https://github.com/velor2012"
     # 插件配置项ID前缀
-    plugin_config_prefix = "ShareRationAlter"
+    plugin_config_prefix = "ShareRatioAlter"
     # 加载顺序
     plugin_order = 21
     # 可使用的用户级别
     auth_level = 2
     site_oper = None
     # 日志前缀
-    LOG_TAG = "[ShareRationAlter]"
+    LOG_TAG = "[ShareRatioAlter]"
 
     # 站点选项
     site_options = []
