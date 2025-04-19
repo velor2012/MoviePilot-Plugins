@@ -27,7 +27,7 @@
         "name": "站点分享率监控",
         "description": "监测站点分享率，低于自定义值时发送通知",
         "labels": "站点监控",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "icon": "https://raw.githubusercontent.com/hotlcc/MoviePilot-Plugins-Third/main/icons/DownloaderHelper.png",
         "author": "velor2012",
         "level": 2,
