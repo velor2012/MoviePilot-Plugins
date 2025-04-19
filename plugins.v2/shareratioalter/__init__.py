@@ -44,7 +44,7 @@ class ShareRatioAlter(_PluginBase):
 
     def init_plugin(self, config: dict = None):
         self.site_oper = SiteOper()
-
+        logger.info('1', SiteOper)
         # 站点选项
         self.site_options = self.__get_site_options()
         # self.active_sites = self.__get_enable_site_ids()
@@ -52,12 +52,16 @@ class ShareRatioAlter(_PluginBase):
         # 读取配置
         if config:
             self._enabled = config.get("enabled")
+            logger.info('2', config)
             self.sites_config = {}
             for site in self.site_options:
+                logger.info('3', site)
                 if f"{site['value']}_enabled" in config:
+                    logger.info(site['value'])
                     self.sites_config[site['value']] = {
                         "enabled": config.get(f"{site['value']}_enabled", False),
                     }
+        
         logger.info(f"插件原始配置: config: {config}")
         logger.info(f"插件配置 sites_config: {self.sites_config}")
     @eventmanager.register(EventType.SiteRefreshed)
