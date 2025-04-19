@@ -69,12 +69,15 @@ class ShareRatioAlter(_PluginBase):
         """
         站点数据刷新事件时发送消息
         """
+        logger.info(f"{self.LOG_TAG} 站点数据刷新,  event.event_data.get('site_id') : ",  event.event_data.get('site_id') )
+
         if event.event_data.get('site_id') != "*":
             return
         # 消息内容
         messages = []
         # 获取站点数据
         res = self.__get_data()
+        logger.info(f"{self.LOG_TAG} 站点数据: {res}")
         # 获取每个站点的分享率
         for data in res:
             if data['ratio'] < 0:
