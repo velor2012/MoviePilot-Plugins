@@ -69,7 +69,7 @@ class ShareRatioAlter(_PluginBase):
         """
         站点数据刷新事件时发送消息
         """
-        logger.info(f"{self.LOG_TAG} 站点数据刷新,  event.event_data.get('site_id') : ",  event.event_data.get('site_id') )
+        logger.info(f"{self.LOG_TAG} 站点数据刷新,  event.event_data : ",  event.event_data )
 
         if event.event_data.get('site_id') != "*":
             return
