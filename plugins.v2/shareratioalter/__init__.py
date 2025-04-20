@@ -1,4 +1,5 @@
 
+from multiprocessing import process
 from typing import List, Tuple, Dict, Any, Optional
 
 
@@ -58,11 +59,11 @@ class ShareRatioAlter(_PluginBase):
             self.sites_config = {}
             for site in self.site_options:
                 logger.info('3', site)
-                if f"{site['value']}_enabled" in config:
-                    logger.info(site['value'])
-                    self.sites_config[site['value']] = {
-                        "enabled": config.get(f"{site['value']}_enabled", False),
-                        "ratio": float(config.get(f"{site['value']}_ratio", -1)),
+                if f"{site['name']}_enabled" in config:
+                    logger.info(site['name'])
+                    self.sites_config[site['name']] = {
+                        "enabled": config.get(f"{site['name']}_enabled", False),
+                        "ratio": float(config.get(f"{site['name']}_ratio", -1)),
                     }
         if self._onlyonce:
             config["onlyonce"] = False
@@ -95,7 +96,7 @@ class ShareRatioAlter(_PluginBase):
         for data in res:
             if data['ratio'] < 0:
                 continue
-            target_ratio = self.sites_config[data['id']]['ratio']
+            target_ratio = self.sites_config[data['name']]['ratio']
             logger.info(f"{self.LOG_TAG} 站点分享率: {data['name']} 分享率: {data['ratio']} 设置阈值为： {target_ratio}")
             if target_ratio > 0 and data['ratio'] < target_ratio:
                 # 发送通知
@@ -111,19 +112,25 @@ class ShareRatioAlter(_PluginBase):
         """
         # 获取所有原始数据
         raw_data_list: List[SiteUserData] = self.site_oper.get_userdata()
-        res = []
-        for data in raw_data_list:
-            if data.ratio is None:
-                data.ratio = -1
-            if data.id in self.sites_config.keys() and self.sites_config[data.id]['enabled']:
-                data.ratio = round(data.ratio, 2)
-                res.append({
-                    "id": data.id,
+        # 每个站点只获取最近一条数据
+        sorted_data_list = sorted(raw_data_list, key=lambda x: x.updated_day, reverse=False)
+        processed_data_list = list(
+            {
+                f"{data.name}":
+                {
                     "name": data.name,
-                    "ratio": data.ratio
+                    "ratio": round(data.ratio, 2)
+                } for data in sorted_data_list
+            }.values())
+        res = []
+        for data in processed_data_list:
+            if data['name'] in self.sites_config.keys() and self.sites_config[data['name']]['enabled']:
+                res.append({
+                    "name": data['name'],
+                    "ratio": data['ratio']
                 })
             else:
-                data.ratio = -1
+                data['ratio'] = -1
             
         # 排序
         res.sort(key=lambda x: x['ratio'], reverse=True)
@@ -162,8 +169,8 @@ class ShareRatioAlter(_PluginBase):
                                 {
                                     'component': 'VTextField',
                                     'props': {
-                                        'model': f"{site['value']}_ratio",
-                                        'label': f"{site['title']}",
+                                        'model': f"{site['name']}_ratio",
+                                        'label': f"{site['name']}",
                                         'type': 'number',
                                         'hint': '当分享率低于此值时发送通知'
                                     }
@@ -179,7 +186,7 @@ class ShareRatioAlter(_PluginBase):
                                 {
                                     'component': 'VSwitch',
                                     'props': {
-                                        'model': f"{site['value']}_enabled",
+                                        'model': f"{site['name']}_enabled",
                                         'label': '启用'
                                     }   
                                 }
@@ -189,7 +196,7 @@ class ShareRatioAlter(_PluginBase):
             })
         
         logger.info(f"插件配置表单: {all_site_options_forms}")
-        logger.info({**{f"{site['value']}_enabled": False for site in site_options}})
+        logger.info({**{f"{site['name']}_enabled": False for site in site_options}})
 
         return [
             {
@@ -234,7 +241,7 @@ class ShareRatioAlter(_PluginBase):
             "enabled": False,
             "onlyonce": False,
             # 初始化下载器自定义标签配置
-            **{f"{site['value']}_enabled": False for site in site_options}
+            **{f"{site['name']}_enabled": False for site in site_options}
         }
 
 
@@ -246,8 +253,8 @@ class ShareRatioAlter(_PluginBase):
         if not sites:
             return []
         return [{
-            'title': site.name,
-            'value': site.id
+            'name': site.name,
+            'id': site.id
         } for site in sites if site and site.is_active]
 
     # def __get_enable_site_ids(self) -> List[int]:
