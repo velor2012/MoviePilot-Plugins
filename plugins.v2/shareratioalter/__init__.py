@@ -115,15 +115,15 @@ class ShareRatioAlter(_PluginBase):
         for data in raw_data_list:
             if data.ratio is None:
                 data.ratio = -1
-            if data.id in self.sites_config and self.sites_config[data.id]['enabled']:
+            if data.id in self.sites_config.keys() and self.sites_config[data.id]['enabled']:
                 data.ratio = round(data.ratio, 2)
+                res.append({
+                    "id": data.id,
+                    "name": data.name,
+                    "ratio": data.ratio
+                })
             else:
                 data.ratio = -1
-            res.append({
-                "id": data.id,
-                "name": data.name,
-                "ratio": data.ratio
-            })
             
         # 排序
         res.sort(key=lambda x: x['ratio'], reverse=True)
