@@ -41,7 +41,8 @@ class ShareRatioAlter(_PluginBase):
     # _event = threading.Event()
     # 私有属性
     _enabled = False
-
+    _onlyonce: bool = False
+    
     def init_plugin(self, config: dict = None):
         self.site_oper = SiteOper()
         logger.info('1', SiteOper)
@@ -52,6 +53,7 @@ class ShareRatioAlter(_PluginBase):
         # 读取配置
         if config:
             self._enabled = config.get("enabled")
+            self._onlyonce = config.get("onlyonce")
             logger.info('2', config)
             self.sites_config = {}
             for site in self.site_options:
@@ -60,8 +62,13 @@ class ShareRatioAlter(_PluginBase):
                     logger.info(site['value'])
                     self.sites_config[site['value']] = {
                         "enabled": config.get(f"{site['value']}_enabled", False),
+                        "ratio": float(config.get(f"{site['value']}_ratio", -1)),
                     }
-        
+        if self._onlyonce:
+            config["onlyonce"] = False
+            self.check_sites_and_send()
+            
+            
         logger.info(f"插件原始配置: config: {config}")
         logger.info(f"插件配置 sites_config: {self.sites_config}")
     @eventmanager.register(EventType.SiteRefreshed)
@@ -73,6 +80,12 @@ class ShareRatioAlter(_PluginBase):
 
         if event.event_data.get('site_id') != "*":
             return
+        self.check_sites_and_send()
+
+    def check_sites_and_send(self):
+        """
+        检查站点是否需要发送通知
+        """
         # 消息内容
         messages = []
         # 获取站点数据
@@ -82,18 +95,16 @@ class ShareRatioAlter(_PluginBase):
         for data in res:
             if data['ratio'] < 0:
                 continue
-            logger.info(f"{self.LOG_TAG} 站点分享率: {data['name']} 分享率: {data['ratio']} 设置阈值为： {self.sites_config[data['id']]['ratio']}")
-            if data['ratio'] < self.sites_config[data['id']]['ratio']:
+            target_ratio = self.sites_config[data['id']]['ratio']
+            logger.info(f"{self.LOG_TAG} 站点分享率: {data['name']} 分享率: {data['ratio']} 设置阈值为： {target_ratio}")
+            if target_ratio > 0 and data['ratio'] < target_ratio:
                 # 发送通知
-                logger.info(f"{self.LOG_TAG} 发送通知: {data['name']} 分享率: {data['ratio']} 设置阈值为： {self.sites_config[data['id']]['ratio']}")
-                messages.append({
-                    "title": f"{data['name']} 分享率 【过低！！】",
-                    "content": f"分享率: {data['ratio']} 设置阈值为： {self.sites_config[data['id']]['ratio']}"
-                })
+                logger.info(f"{self.LOG_TAG} 发送通知: {data['name']} 分享率: {data['ratio']} 设置阈值为： {target_ratio}")
+                messages.append(f"{data['name']} 分享率 【过低！！ \n" + 
+                            f"分享率: {data['ratio']} 设置阈值为： {target_ratio}\n" +
+                            f"————————————")
         self.post_message(mtype=NotificationType.SiteMessage,
                             title="站点分享率过低告警", text="\n".join(messages))
-
-
     def __get_data(self) -> Tuple[str, List[SiteUserData], List[SiteUserData]]:
         """
         获取每个站点的分享率，并返回
@@ -115,7 +126,7 @@ class ShareRatioAlter(_PluginBase):
             })
             
         # 排序
-        res.sort(key=lambda x: x.ratio, reverse=True)
+        res.sort(key=lambda x: x['ratio'], reverse=True)
         return res
         
 
@@ -134,6 +145,7 @@ class ShareRatioAlter(_PluginBase):
         ))
 
     def get_form(self) -> Tuple[List[dict], Dict[str, Any]]:
+        self.site_options = self.__get_site_options()
         site_options = self.site_options
         # 构建下载器配置表单
         all_site_options_forms =  []    
@@ -198,12 +210,29 @@ class ShareRatioAlter(_PluginBase):
                                     }
                                 }
                             ]
+                        },
+                        {
+                            'component': 'VCol',
+                            'props': {
+                                'cols': 12,
+                                'md': 4
+                            },
+                            'content': [
+                                {
+                                    'component': 'VSwitch',
+                                    'props': {
+                                        'model': 'onlyonce',
+                                        'label': '立即运行一次',
+                                    }
+                                }
+                            ]
                         }
                     ]
             },
             *all_site_options_forms
         ], {
             "enabled": False,
+            "onlyonce": False,
             # 初始化下载器自定义标签配置
             **{f"{site['value']}_enabled": False for site in site_options}
         }
