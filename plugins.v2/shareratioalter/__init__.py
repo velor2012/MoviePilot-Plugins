@@ -104,8 +104,10 @@ class ShareRatioAlter(_PluginBase):
                 messages.append(f"{data['name']} 分享率 【过低！！ \n" + 
                             f"分享率: {data['ratio']} 设置阈值为： {target_ratio}\n" +
                             f"————————————")
-        self.post_message(mtype=NotificationType.SiteMessage,
-                            title="站点分享率过低告警", text="\n".join(messages))
+        if len(messages) > 0:
+            # 发送通知
+            self.post_message(mtype=NotificationType.SiteMessage,
+                                title="站点分享率过低告警", text="\n".join(messages))
     def __get_data(self) -> Tuple[str, List[SiteUserData], List[SiteUserData]]:
         """
         获取每个站点的分享率，并返回
