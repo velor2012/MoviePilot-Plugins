@@ -1,19 +1,11 @@
-import datetime
-import threading
-from typing import List, Tuple, Dict, Any, Optional
 
-import pytz
-from app.helper.sites import SitesHelper
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
-from app.core.config import settings
+import threading
+from typing import List, Tuple, Dict, Any
+
 from app.helper.downloader import DownloaderHelper
 from app.log import logger
 from app.plugins import _PluginBase
-from app.schemas import ServiceInfo
-from app.utils.string import StringUtils
-from app.plugins.downloaderhelper.module import TaskContext
-from app.schemas.types import EventType, ChainEventType
+from app.schemas.types import EventType
 from app.core.event import eventmanager, Event
 
 class DownloaderTagAdder(_PluginBase):
@@ -49,6 +41,7 @@ class DownloaderTagAdder(_PluginBase):
 
     def init_plugin(self, config: dict = None):
         self.downloader_helper = DownloaderHelper()
+        logger.info(f"{self.LOG_TAG} 初始化 ...")
         # 读取配置
         if config:
             self._enabled = config.get("enabled")
@@ -60,6 +53,7 @@ class DownloaderTagAdder(_PluginBase):
                     self._downloader_configs[dl.name] = {
                         "custom_tags": config.get(f"{dl.name}_custom_tags", "").split("\n")
                     }
+        logger.info(f"{self.LOG_TAG} 初始化 完成")
     @eventmanager.register(EventType.DownloadAdded)
     def listen_download_added_event(self, event: Event = None):
         """
