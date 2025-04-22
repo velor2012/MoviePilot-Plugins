@@ -34,7 +34,7 @@ class DownloaderTagAdder(_PluginBase):
     # 加载顺序
     plugin_order = 21
     # 可使用的用户级别
-    auth_level = 2
+    auth_level = 1
     # 日志前缀
     LOG_TAG = "[DownloaderTagAdder]"
 
