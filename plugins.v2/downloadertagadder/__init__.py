@@ -30,7 +30,7 @@ class DownloaderTagAdder(_PluginBase):
     # 作者主页
     author_url = "https://github.com/velor2012"
     # 插件配置项ID前缀
-    plugin_config_prefix = "Downloader_Tag_Adder"
+    plugin_config_prefix = "Downloader_Tag_Adder_"
     # 加载顺序
     plugin_order = 21
     # 可使用的用户级别
