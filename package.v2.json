@@ -11,7 +11,7 @@
             "v1.0.0": "功能能初步完成"
         }
     },
-    "DownloaderTagAdder": {
+    "DownloadTagAdder": {
         "name": "下载器添加标签",
         "description": "给qb、tr的下载器贴标签（下载时触发）",
         "labels": "下载",
@@ -20,6 +20,7 @@
         "author": "velor2012",
         "level": 2,
         "history": {
+            "v1.0.1": "改bug",
             "v1.0.0": "功能能初步完成"
         }
     },
