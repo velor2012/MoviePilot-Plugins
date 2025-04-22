@@ -46,7 +46,7 @@ class ShareRatioAlter(_PluginBase):
     
     def init_plugin(self, config: dict = None):
         self.site_oper = SiteOper()
-        logger.info('1', SiteOper)
+        # logger.info('1', SiteOper)
         # 站点选项
         self.site_options = self.__get_site_options()
         # self.active_sites = self.__get_enable_site_ids()
