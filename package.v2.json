@@ -16,7 +16,7 @@
         "description": "给qb、tr的下载器贴标签（下载时触发）",
         "labels": "下载",
         "version": "1.0.0",
-        "icon": "download.png",
+        "icon": "world.png",
         "author": "velor2012",
         "level": 2,
         "history": {
