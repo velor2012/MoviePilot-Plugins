@@ -22,7 +22,7 @@ class DownloaderTagAdder(_PluginBase):
     # 插件描述
     plugin_desc = "给qb、tr的下载器贴标签（下载时触发）"
     # 插件图标
-    plugin_icon = "download.png"
+    plugin_icon = "world.png"
     # 插件版本
     plugin_version = "1.0.0"
     # 插件作者
