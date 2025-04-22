@@ -1,3 +1,16 @@
+from typing import Any, List, Dict, Tuple, Optional
+
+from app.core.event import eventmanager, Event
+from app.db.site_oper import SiteOper
+from app.plugins import _PluginBase
+from app.log import logger
+from app.schemas.types import EventType
+from app.utils.string import StringUtils
+from app.schemas import ServiceInfo
+from app.helper.downloader import DownloaderHelper
+from app.helper.directory import DirectoryHelper
+
+# fork from https://github.com/thsrite/MoviePilot-Plugins/tree/main/plugins.v2/downloadtorrent
 class DownloadTorrentPlus(_PluginBase):
     # 插件名称
     plugin_name = "添加种子下载"
