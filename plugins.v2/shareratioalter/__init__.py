@@ -11,6 +11,15 @@ from app.schemas.types import EventType
 from app.core.event import eventmanager, Event
 from app.db.models.siteuserdata import SiteUserData
 from app.schemas import Notification, NotificationType, MessageChannel
+from pathlib import Path
+import json
+import os
+
+
+# 获取当前文件的路径
+current_file = Path(__file__).resolve()
+# 获取当前文件所在的目录
+current_dir = current_file.parent
 
 class ShareRatioAlter(_PluginBase):
     # 插件名称
@@ -43,6 +52,10 @@ class ShareRatioAlter(_PluginBase):
     # 私有属性
     _enabled = False
     _onlyonce: bool = False
+    _record_change = False
+    
+    lastDataFile = os.path.join(current_dir, 'lastData.json')
+    _lastData = {}
     
     def init_plugin(self, config: dict = None):
         self.site_oper = SiteOper()
@@ -50,11 +63,23 @@ class ShareRatioAlter(_PluginBase):
         # 站点选项
         self.site_options = self.__get_site_options()
         # self.active_sites = self.__get_enable_site_ids()
-        
+        # 读取lastDataFile的json内容到_lastData中
+
+        if os.path.exists(self.lastDataFile):
+            with open(self.lastDataFile, 'r') as f:
+                self._lastData = json.load(f)
+        else:
+            self._lastData = {}
+            # 写入lastDataFile
+            with open(self.lastDataFile, 'w') as f:
+                json.dump(self._lastData, f)
+        logger.info(f"{self.LOG_TAG} 加载上次数据: {self._lastData}")
+                
         # 读取配置
         if config:
             self._enabled = config.get("enabled")
             self._onlyonce = config.get("onlyonce")
+            self._record_change = config.get("record_change")
             logger.info('2', config)
             self.sites_config = {}
             for site in self.site_options:
@@ -92,11 +117,18 @@ class ShareRatioAlter(_PluginBase):
         # 获取站点数据
         res = self.__get_data()
         logger.info(f"{self.LOG_TAG} 站点数据: {res}")
+        
+        cur_data = {}
+        
         # 获取每个站点的分享率
         for data in res:
             if data['ratio'] < 0:
                 continue
             target_ratio = self.sites_config[data['name']]['ratio']
+            
+            # 记录本次数据，保存到cur_data中
+            cur_data[data['name']] = data
+            
             logger.info(f"{self.LOG_TAG} 站点分享率: {data['name']} 分享率: {data['ratio']} 设置阈值为： {target_ratio}")
             if target_ratio > 0 and data['ratio'] < target_ratio:
                 # 发送通知
@@ -104,6 +136,30 @@ class ShareRatioAlter(_PluginBase):
                 messages.append(f"{data['name']} 分享率 【过低！！ \n" + 
                             f"分享率: {data['ratio']} 设置阈值为： {target_ratio}\n" +
                             f"————————————")
+                
+        # 发送站点分享率变化通知
+        record_change_mgs = []
+        if self._record_change:
+            for data in res:
+                if data['ratio'] < 0:
+                    continue
+                if data['name'] in self._lastData.keys():
+                    last_data = self._lastData[data['name']]
+                    change_ratio = round(abs(last_data['ratio'] - data['ratio']), 3)
+                    if change_ratio > 0.001:
+                        record_change_mgs.append(f"【{data['name']}】 " +
+                                    f"当前分享率: {data['ratio']}   {change_ratio}{'↑' if data['ratio'] > last_data['ratio'] else '↓'}\n")
+               
+        if len(record_change_mgs) > 0:
+            # 发送通知
+            self.post_message(mtype=NotificationType.SiteMessage,
+                                title="站点分享率变化", text="\n".join(record_change_mgs))
+            
+        # 写入lastDataFile
+        with open(self.lastDataFile, 'w') as f:
+            json.dump(cur_data, f)     
+        self._lastData = cur_data      
+                        
         if len(messages) > 0:
             # 发送通知
             self.post_message(mtype=NotificationType.SiteMessage,
@@ -115,13 +171,15 @@ class ShareRatioAlter(_PluginBase):
         # 获取所有原始数据
         raw_data_list: List[SiteUserData] = self.site_oper.get_userdata()
         # 每个站点只获取最近一条数据
-        sorted_data_list = sorted(raw_data_list, key=lambda x: x.updated_day, reverse=False)
+        sorted_data_list: List[SiteUserData] = sorted(raw_data_list, key=lambda x: x.updated_day, reverse=False)
         processed_data_list = list(
             {
                 f"{data.name}":
                 {
                     "name": data.name,
-                    "ratio": round(data.ratio, 2)
+                    "ratio": round(data.ratio, 2),
+                    "upload": data.upload,
+                    "download": data.download,
                 } for data in sorted_data_list
             }.values())
         res = []
@@ -129,7 +187,9 @@ class ShareRatioAlter(_PluginBase):
             if data['name'] in self.sites_config.keys() and self.sites_config[data['name']]['enabled']:
                 res.append({
                     "name": data['name'],
-                    "ratio": data['ratio']
+                    "ratio": data['ratio'],
+                    "upload": data['upload'],
+                    "download": data['download'],
                 })
             else:
                 data['ratio'] = -1
@@ -223,6 +283,22 @@ class ShareRatioAlter(_PluginBase):
                         {
                             'component': 'VCol',
                             'props': {
+                                    'cols': 12,
+                                    'md': 4
+                                },
+                                'content': [
+                                    {
+                                        'component': 'VSwitch',
+                                        'props': {
+                                            'model': "record_change",
+                                            'label': '记录变化'
+                                        }   
+                                    }
+                                ]
+                        },
+                        {
+                            'component': 'VCol',
+                            'props': {
                                 'cols': 12,
                                 'md': 4
                             },
@@ -238,10 +314,32 @@ class ShareRatioAlter(_PluginBase):
                         }
                     ]
             },
+            {
+                'component': 'VRow',
+                'content': [
+                    {
+                        'component': 'VCol',
+                        'props': {
+                            'cols': 12,
+                        },
+                        'content': [
+                            {
+                                'component': 'VAlert',
+                                'props': {
+                                    'type': 'info',
+                                    'variant': 'tonal',
+                                    'text': '启用记录变化后每次收到站点数据都会发送通知（告知发生变化的指标），否则只会在分享率较低时发送通知'
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
             *all_site_options_forms
         ], {
             "enabled": False,
             "onlyonce": False,
+            "record_change": False,
             # 初始化下载器自定义标签配置
             **{f"{site['name']}_enabled": False for site in site_options}
         }
